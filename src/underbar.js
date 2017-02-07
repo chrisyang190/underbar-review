@@ -219,27 +219,27 @@
 
     // item1 && item2 && item3 === true
     var args = arguments;
-    /*if (args.length < 2){
+    if (args.length < 2) {
       return _.reduce(collection, function(stillTrue, item) {
         if (item == false || item === undefined) { // [true, false ,true]
-        stillTrue = false;
+          stillTrue = false;
         }
         return stillTrue;
       }, true);
-    }*/
-    /*return _.reduce(collection, function(stillTrue, item) {
+    }
+    return _.reduce(collection, function(stillTrue, item) {
       if (iterator(item) == false || iterator(item) === undefined) { // [true, false ,true]
         stillTrue = false;
       }
       return stillTrue;
-    }, true);*/
+    }, true);
 
-    return _.reduce(collection, function(stillTrue, item) {
+    /*return _.reduce(collection, function(stillTrue, item) {
       if (!stillTrue || !iterator(item)) { // [true, false ,true]
         return false;
       }
       return true;
-    }, true);
+    }, true);*/
 
   };
 
@@ -247,6 +247,15 @@
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
+    // [true, true, true] --> returns true for some & every
+    // [true, false, true] --> returns true for some, false for every
+    // [false, false, false] --> returns false for some & every
+
+    //if (_.every(collection, iterator)== false)
+
+    
+    return !_.every(collection, iterator);
+    
   };
 
 
