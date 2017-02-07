@@ -109,6 +109,24 @@
 
   // Produce a duplicate-free version of the array.
   _.uniq = function(array) {
+
+    var obj = {};
+    var result = [];
+
+    _.each(array, function(s) {
+      obj[s] ? obj[s]++ : obj[s] = 1;
+    });
+
+    for (var key in obj) {
+
+      if (typeof parseInt(key) === 'number') {
+        result.push(parseInt(key));
+      } else {
+        result.push(key);
+      }
+    }
+
+    return result;
   };
 
 
@@ -117,6 +135,13 @@
     // map() is a useful primitive iteration function that works a lot
     // like each(), but in addition to running the operation on all
     // the members, it also maintains an array of results.
+    var result = [];
+
+    _.each(collection, function(value) {
+      result.push(iterator(value));
+    });
+
+    return result;
   };
 
   /*
@@ -158,6 +183,21 @@
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
   _.reduce = function(collection, iterator, accumulator) {
+    var arg = arguments;
+
+    // no starting value for accumulator
+    if (arg.length == 2) {
+      accumulator = collection[0]; //[3,2,1]
+      collection = collection.slice(1);
+    }
+
+    _.each(collection, function(value) {
+    
+      accumulator = iterator(accumulator, value); //[3,2,1]
+
+    });
+
+    return accumulator;
   };
 
   // Determine if the array or object contains a given value (using `===`).
@@ -176,6 +216,31 @@
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     // TIP: Try re-using reduce() here.
+
+    // item1 && item2 && item3 === true
+    var args = arguments;
+    /*if (args.length < 2){
+      return _.reduce(collection, function(stillTrue, item) {
+        if (item == false || item === undefined) { // [true, false ,true]
+        stillTrue = false;
+        }
+        return stillTrue;
+      }, true);
+    }*/
+    /*return _.reduce(collection, function(stillTrue, item) {
+      if (iterator(item) == false || iterator(item) === undefined) { // [true, false ,true]
+        stillTrue = false;
+      }
+      return stillTrue;
+    }, true);*/
+
+    return _.reduce(collection, function(stillTrue, item) {
+      if (!stillTrue || !iterator(item)) { // [true, false ,true]
+        return false;
+      }
+      return true;
+    }, true);
+
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
