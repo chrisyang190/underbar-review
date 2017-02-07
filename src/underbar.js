@@ -218,15 +218,16 @@
     // TIP: Try re-using reduce() here.
 
     // item1 && item2 && item3 === true
-    var args = arguments;
-    if (args.length < 2) {
-      return _.reduce(collection, function(stillTrue, item) {
-        if (item == false || item === undefined) { // [true, false ,true]
-          stillTrue = false;
-        }
-        return stillTrue;
-      }, true);
-    }
+    // var args = arguments;
+    // if (args.length < 2) {
+    //   return _.reduce(collection, function(stillTrue, item) {
+    //     if (item == false || item === undefined) { // [true, false ,true]
+    //       stillTrue = false;
+    //     }
+    //     return stillTrue;
+    //   }, true);
+    // }
+    iterator = iterator || _.identity;
     return _.reduce(collection, function(stillTrue, item) {
       if (iterator(item) == false || iterator(item) === undefined) { // [true, false ,true]
         stillTrue = false;
@@ -253,8 +254,10 @@
 
     //if (_.every(collection, iterator)== false)
 
-    
-    return !_.every(collection, iterator);
+    iterator = iterator || _.identity;    
+    return !_.every(collection, function(value) {
+      return !iterator(value);
+    });
     
   };
 
@@ -278,11 +281,30 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    // var args = Array.from(arguments).slice(1);
+    _.each(args, function(object) {
+      for (var key in object) {
+        obj[key] = object[key];
+      }
+    });
+
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    var args = Array.from(arguments).slice(1);
+
+    _.each(args, function(object) {
+      for (var key in object) {
+        if (!(key in obj)/*!_.contains(obj,obj[key])*/) {
+          obj[key] = object[key];
+        }
+      }
+    });
+    return obj;
   };
 
 
@@ -326,6 +348,17 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+    var cache = {};
+    
+    return function() {
+      var args = JSON.stringify(arguments);
+  
+      if (!(args in cache)) {
+        cache[args] = func.apply(this, arguments);
+      }
+      return cache[args];
+    };
+
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -335,6 +368,20 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+
+    var parameters = Array.from(arguments).slice(2);
+    var delayedFunction = function() {
+      return func.apply(null, parameters);
+    };
+    setTimeout(delayedFunction, wait);
+    // setTimeout(func, wait, arguments[2], arguments[3]);
+
+    // return function() {
+    //   var delayedFunction = function() {
+    //     return func.apply(this, parameters);
+    //   };
+    //   setTimeout(delayedFunction, wait);
+    // };
   };
 
 
@@ -349,6 +396,20 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+
+    var result = [];
+    var check = {};
+
+    while (result.length < array.length) {
+      var randomIndex = Math.floor(Math.random() * array.length); 
+      if (!(randomIndex in check)) {
+        result.push(array[randomIndex]); 
+        //debugger;
+        check[randomIndex] = 1;
+      }
+    }
+    //_.each(array, function(){});
+    return result;
   };
 
 
